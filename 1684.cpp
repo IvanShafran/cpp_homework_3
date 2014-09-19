@@ -102,8 +102,7 @@ void solution1684()
         }
 
         listOfPrefixesLength.push_back(mostRightZBlock.left - zBlock_.left);
-        zBlock_.left = mostRightZBlock.left;
-        zBlock_.right = zBlock::getRightBound(zBlock_.left, zFunction);
+        zBlock_.left = mostRightZBlock;
     }
     listOfPrefixesLength.push_back(zFunction[zBlock_.left]);
 
