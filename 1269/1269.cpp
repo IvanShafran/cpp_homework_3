@@ -1,16 +1,11 @@
-#include <iostream>
-#include <vector>
-#include <string>
-#include <map>
-
 struct AKvertex
 {
     bool leaf;
-    std::map<int, int> child;
+    std::map<unsigned char, int> child;
     int parent;
     unsigned char last_edge;
     int suffix_link;
-    std::map<int, int> automat_link;
+    std::map<unsigned char, int> automat_link;
     int distanceFromRoot;
     int lengthOfMostLongSuffix;
 
@@ -20,13 +15,17 @@ struct AKvertex
 
 class AKAutomat
 {
-private:
-    bool isKeyExistInMap(int key, const std::map<int, int>& map)
+public:
+    bool isKeyExistInMap(int key, const std::map<unsigned char, int>& map)
     {
         return map.find(key) != map.end();
     }
 
-public:
+    int size()
+    {
+        return vertices.size();
+    }
+
     std::vector<AKvertex> vertices;
 
     AKAutomat() : vertices(1)
@@ -71,7 +70,7 @@ public:
     {
         if (!isKeyExistInMap(symbol, vertices[vertex].automat_link))
         {
-            if (vertices[vertex].child[symbol] != -1)
+            if (isKeyExistInMap(symbol, vertices[vertex].child))
                 vertices[vertex].automat_link[symbol] = vertices[vertex].child[symbol];
             else {
                 if (vertex == 0)
@@ -82,6 +81,28 @@ public:
         }
 
         return vertices[vertex].automat_link[symbol];
+    }
+
+    int getLengthOfMostLongSuffixLeaf(int vertex)
+    {
+        if (vertices[vertex].lengthOfMostLongSuffix == -1)
+        {
+            if (vertex == 0)
+                vertices[vertex].lengthOfMostLongSuffix = 0;
+            else
+            {
+                if (vertices[vertex].leaf)
+                {
+                    vertices[vertex].lengthOfMostLongSuffix = vertices[vertex].distanceFromRoot;
+                }
+                else
+                {
+                    vertices[vertex].lengthOfMostLongSuffix = getLengthOfMostLongSuffixLeaf(getSuffixLink(vertex));
+                }
+            }
+        }
+
+        return vertices[vertex].lengthOfMostLongSuffix;
     }
 
     int getLengthOfMostLongSuffixLeaf(int vertex)
