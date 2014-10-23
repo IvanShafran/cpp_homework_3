@@ -1,50 +1,60 @@
-struct AKvertex
-{
-    bool leaf;
-    std::map<unsigned char, int> child;
-    int parent;
-    unsigned char last_edge;
-    int suffix_link;
-    std::map<unsigned char, int> automat_link;
-    int distanceFromRoot;
-    int lengthOfMostLongSuffix;
+#include <iostream>
+#include <vector>
+#include <string>
+#include <map>
 
-    AKvertex() : leaf(false), parent(0), suffix_link(-1), distanceFromRoot(0), lengthOfMostLongSuffix(-1)
-    { }
-};
 
 class AKAutomat
 {
-public:
-    bool isKeyExistInMap(int key, const std::map<unsigned char, int>& map)
+    struct AKVertex
+    {
+        bool leaf;
+        std::map<unsigned char, int> child;
+        int parent;
+        unsigned char last_edge;
+        int suffix_link;
+        std::map<unsigned char, int> automat_link;
+        int distanceFromRoot;
+        int maxSuffixLength;
+
+        AKVertex() : leaf(false), parent(0), suffix_link(-1), distanceFromRoot(0), maxSuffixLength(-1)
+        { }
+
+        AKVertex(int parent_, int distance, unsigned char symbol) : leaf(false), parent(parent_), last_edge(symbol),
+            suffix_link(-1), distanceFromRoot(distance), maxSuffixLength(-1)
+        {}
+    };
+
+    bool isKeyExistInMap(int key, const std::map<unsigned char, int>& map) const
     {
         return map.find(key) != map.end();
     }
 
-    int size()
+    std::vector<AKVertex> vertices;
+
+public:
+    AKAutomat() : vertices(1)
+    {}
+
+    const std::vector<AKVertex>& getVertices() const {
+        return vertices;
+    }
+
+    int size() const
     {
         return vertices.size();
     }
-
-    std::vector<AKvertex> vertices;
-
-    AKAutomat() : vertices(1)
-    {}
 
     void addString(const std::string& string)
     {
         int vertex = 0;//root
         for (size_t index = 0; index < string.size(); ++index)
         {
-            unsigned char symbol = static_cast<unsigned char>(string[index]);
+            unsigned char symbol = string[index];
 
             if (!isKeyExistInMap(symbol, vertices[vertex].child))
             {
-                AKvertex newAKVertex;
-                newAKVertex.parent = vertex;
-                newAKVertex.last_edge = symbol;
-                newAKVertex.distanceFromRoot = index + 1;
-                vertices.push_back(newAKVertex);
+                vertices.push_back(AKVertex(vertex, index + 1, symbol));
                 vertices[vertex].child[symbol] = vertices.size() - 1;
             }
             vertex = vertices[vertex].child[symbol];
@@ -83,48 +93,26 @@ public:
         return vertices[vertex].automat_link[symbol];
     }
 
-    int getLengthOfMostLongSuffixLeaf(int vertex)
+    int getMaxSuffixLengthLeaf(int vertex)
     {
-        if (vertices[vertex].lengthOfMostLongSuffix == -1)
+        if (vertices[vertex].maxSuffixLength == -1)
         {
             if (vertex == 0)
-                vertices[vertex].lengthOfMostLongSuffix = 0;
+                vertices[vertex].maxSuffixLength = 0;
             else
             {
                 if (vertices[vertex].leaf)
                 {
-                    vertices[vertex].lengthOfMostLongSuffix = vertices[vertex].distanceFromRoot;
+                    vertices[vertex].maxSuffixLength = vertices[vertex].distanceFromRoot;
                 }
                 else
                 {
-                    vertices[vertex].lengthOfMostLongSuffix = getLengthOfMostLongSuffixLeaf(getSuffixLink(vertex));
+                    vertices[vertex].maxSuffixLength = getMaxSuffixLengthLeaf(getSuffixLink(vertex));
                 }
             }
         }
 
-        return vertices[vertex].lengthOfMostLongSuffix;
-    }
-
-    int getLengthOfMostLongSuffixLeaf(int vertex)
-    {
-        if (vertices[vertex].lengthOfMostLongSuffix == -1)
-        {
-            if (vertex == 0)
-                vertices[vertex].lengthOfMostLongSuffix = 0;
-            else
-            {
-                if (vertices[vertex].leaf)
-                {
-                    vertices[vertex].lengthOfMostLongSuffix = vertices[vertex].distanceFromRoot;
-                }
-                else
-                {
-                    vertices[vertex].lengthOfMostLongSuffix = getLengthOfMostLongSuffixLeaf(getSuffixLink(vertex));
-                }
-            }
-        }
-
-        return vertices[vertex].lengthOfMostLongSuffix;
+        return vertices[vertex].maxSuffixLength;
     }
 };
 
@@ -133,12 +121,12 @@ bool processLine(int numberOfLine, const std::string& line, AKAutomat& automat)
     int vertex = 0;
     for (size_t index = 0; index < line.size(); ++index)
     {
-        unsigned char symbol = static_cast<unsigned char>(line[index]);
+        unsigned char symbol = line[index];
         vertex = automat.getAutomatLink(vertex, symbol);
 
-        if (automat.getLengthOfMostLongSuffixLeaf(vertex) != 0)
+        if (automat.getMaxSuffixLengthLeaf(vertex) != 0)
         {
-            std::cout << numberOfLine << ' ' << index + 2 - automat.getLengthOfMostLongSuffixLeaf(vertex);
+            std::cout << numberOfLine << ' ' << index + 2 - automat.getMaxSuffixLengthLeaf(vertex);
             return true;
         }
     }
