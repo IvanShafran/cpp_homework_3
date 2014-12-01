@@ -65,7 +65,7 @@ c публичным конструктором <code>SuffixTree(const std::string& string, char last_
 
 <p>При необходимости должны переопределяться методы:</p>
 
-<code>//вызывается перед обработкой ссылок(переходов) вершины vertex;
+<pre><code>//вызывается перед обработкой ссылок(переходов) вершины vertex;
 //vertex - индекс вершины во внутренней структуре SuffixTree;
 //индекс вершины является уникальным неотрицательным числом типа int;
 void BeforeVertexProcessing(int vertex) {}
@@ -88,7 +88,7 @@ void ProcessSuffixLink(int vertex, int incidence_vertex,
 
 //вызывается после обработки вершины vertex
 void AfterVertexProcessing(int vertex) {}
-</code> 
+</code> </pre>
 
 <h5>Важные замечания</h5>
 
