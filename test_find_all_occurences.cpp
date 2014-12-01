@@ -95,9 +95,14 @@ void TestFindAllOccurencesRandomTest() {
 }
 
 void TestFindAllOccurences(std::ostream& out) {
-  TestFindAllOccurencesUnit();
-  PrintOK("TestFindAllOccurencesUnit", out);
+  try {
+    TestFindAllOccurencesUnit();
+    PrintOK("TestFindAllOccurencesUnit", out);
 
-  TestFindAllOccurencesRandomTest();
-  PrintOK("TestFindAllOccurencesRandomTest", out);
+    TestFindAllOccurencesRandomTest();
+    PrintOK("TestFindAllOccurencesRandomTest", out);
+  }
+  catch (std::exception e) {
+    out << e.what() << "\n";
+  }
 }

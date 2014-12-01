@@ -141,27 +141,32 @@ void TestSuffixTreeGetSizeOfAlphabet() {
 }
 
 void TestSuffixTreeUnitTests(std::ostream& out) {
-  TestSuffixTreeGetString();
-  PrintOK("TestSuffixTreeGetString", out);
+  try {
+    TestSuffixTreeGetString();
+    PrintOK("TestSuffixTreeGetString", out);
 
-  TestSuffixTreeNewVertex();
-  PrintOK("TestSuffixTreeNewVertex", out);
+    TestSuffixTreeNewVertex();
+    PrintOK("TestSuffixTreeNewVertex", out);
 
-  TestSuffixTreeBuildAlphabet();
-  PrintOK("TestSuffixTreeBuildAlphabet", out);
+    TestSuffixTreeBuildAlphabet();
+    PrintOK("TestSuffixTreeBuildAlphabet", out);
 
-  TestSuffixTreeGetSizeOfAlphabet();
-  PrintOK("TestSuffixTreeGetSizeOfAlphabet", out);
+    TestSuffixTreeGetSizeOfAlphabet();
+    PrintOK("TestSuffixTreeGetSizeOfAlphabet", out);
 
-  TestSuffixTreeInitTree();
-  PrintOK("TestSuffixTreeInitTree", out);
+    TestSuffixTreeInitTree();
+    PrintOK("TestSuffixTreeInitTree", out);
 
-  TestSuffixTreeCanonize();
-  PrintOK("TestSuffixTreeCanonize", out);
+    TestSuffixTreeCanonize();
+    PrintOK("TestSuffixTreeCanonize", out);
 
-  TestSuffixTreeSplit();
-  PrintOK("TestSuffixTreeSplit", out);
+    TestSuffixTreeSplit();
+    PrintOK("TestSuffixTreeSplit", out);
 
-  TestSuffixTreeOnEmptyString();
-  PrintOK("TestSuffixTreeOnEmptyString", out);
+    TestSuffixTreeOnEmptyString();
+    PrintOK("TestSuffixTreeOnEmptyString", out);
+  }
+  catch (std::exception e) {
+    out << e.what() << "\n";
+  }
 }

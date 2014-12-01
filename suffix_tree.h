@@ -27,6 +27,11 @@
 **[ begin(v, u); end(v, u) ) is a substring of suffix_tree_string
 **
 **You can see example in find_all_occurences.h
+**
+************************Testing******************
+**If you want start testing you must call 
+**void TestFindAllOccurences(std::ostream& out);
+**and void TestSuffixTreeUnitTests(std::ostream& out);
 */
 
 #include <string>
@@ -56,28 +61,27 @@ class SuffixTreeVisitor {
                    int begin_substring_index, int end_substring_index,
                    bool* do_transition) {}
 
+  void ProcessSuffixLink(int vertex, int incidence_vertex,
+                         bool* do_transition) {}
+
   void AfterVertexProcessing(int vertex) {}
 };
 
 class SuffixTree {
 public:
-  SuffixTree(const std::string& string) {
+  SuffixTree(const std::string& string, char last_symbol='$') {
     string_ = string;
-    string_ += '$';
+    string_ += last_symbol;
 
-    BuildAlphabet();
+    BuildAlphabet(string_);
 
     InitTree();
 
     BuildTree();
   }
 
-  const std::string& get_string() const {
-    return string_;
-  }
-
   template <class Visitor>
-  void DFS(Visitor* visitor) const {
+  void TreeTraversal(Visitor* visitor) const {
     visitor->set_suffix_tree_string(&(this->get_string()));
 
     size_t number_of_vertices = this->tree_.size();
@@ -164,12 +168,16 @@ public:
   std::string alphabet_;
   std::map<int, int> map_of_alphabet_index_;
 
-  void BuildAlphabet() {
-    for (int i = 0; i < string_.size(); ++i) {
-      if (std::find(alphabet_.begin(), alphabet_.end(), string_[i]) ==
+  const std::string& get_string() const {
+    return string_;
+  }
+
+  void BuildAlphabet(const std::string& string) {
+    for (int i = 0; i < string.size(); ++i) {
+      if (std::find(alphabet_.begin(), alphabet_.end(), string[i]) ==
           alphabet_.end()) {
-        map_of_alphabet_index_[string_[i]] = alphabet_.size();
-        alphabet_ += string_[i];
+        map_of_alphabet_index_[string[i]] = alphabet_.size();
+        alphabet_ += string[i];
       }
     }
   }

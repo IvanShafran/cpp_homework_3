@@ -6,17 +6,9 @@
 #include "test_find_all_occurences.h"
 
 int main() {
-  try {
-    TestSuffixTreeUnitTests(std::cout);
-    TestFindAllOccurences(std::cout);
-  }
-  catch (std::exception e) {
-    std::cout << e.what() << std::endl;
-    system("PAUSE");
-    return 0;
-  }
-
-  std::cout << "ALL OK" << std::endl;
+  TestSuffixTreeUnitTests(std::cout);
+  TestFindAllOccurences(std::cout);
   system("PAUSE");
+
   return 0;
 }
