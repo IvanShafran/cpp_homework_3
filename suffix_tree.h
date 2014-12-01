@@ -1,39 +1,3 @@
-/*There is the implementation of a suffix tree, which has
-**linear time of a construction and linear extramemory.
-**
-**SuffixTree class has two public methods:
-**1)  //returns your string + '$'
-**  const std::string& get_string();
-**2)
-**  void DFS(Visitor* visitor);
-**  
-**DFS - Depth-first search
-**For using DFS you must implement public inheritor of SuffixTreeVisitor.
-**
-**You get information from dfs in this way:
-**
-**dfs(int v, Visitor* visitor) {
-**  visitor->BeforeVertexProcessing();
-**  for (u : incidence_list(v)) {
-**    bool do_transition;
-**    visitor->ProcessLink(v, u, begin(v, u), end(v, u), &do_transition);
-**    if (do_transition) {
-**      dfs(u)
-**    }
-**  }
-**  visitor->AfterProcessing(v);
-**}
-**
-**[ begin(v, u); end(v, u) ) is a substring of suffix_tree_string
-**
-**You can see example in find_all_occurences.h
-**
-************************Testing******************
-**If you want start testing you must call 
-**void TestFindAllOccurences(std::ostream& out);
-**and void TestSuffixTreeUnitTests(std::ostream& out);
-*/
-
 #include <string>
 #include <algorithm>
 #include <vector>
