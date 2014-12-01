@@ -65,30 +65,29 @@ c публичным конструктором <code>SuffixTree(const std::string& string, char last_
 
 <p>При необходимости должны переопределяться методы:</p>
 
-<code>
-  //вызывается перед обработкой ссылок(переходов) вершины vertex;
-  //vertex - индекс вершины во внутренней структуре SuffixTree;
-  //индекс вершины является уникальным неотрицательным числом типа int;
-  void BeforeVertexProcessing(int vertex) {}
+<code>//вызывается перед обработкой ссылок(переходов) вершины vertex;
+//vertex - индекс вершины во внутренней структуре SuffixTree;
+//индекс вершины является уникальным неотрицательным числом типа int;
+void BeforeVertexProcessing(int vertex) {}
 
-  //вызывается в процессе метода TreeTraversal;
-  //подстрока suffix_tree_string_, начинающаяся с индекса begin_substring_index(включительно) 
-  //и заканчивающаяся индексом end_substring_index "лежит" на ребре из vertex в incidence_vertex
-  //(является переходом из vertex в incidence_vertex);
-  //также принимает bool* do_transition, если TreeTraversal должен перейти по ребру(ссылке, переходу),
-  //то в методе ProcessLink do_transtition должен стать равным true, иначе false.(обязательно)
-  void ProcessLink(int vertex, int incidence_vertex,
-                   int begin_substring_index, int end_substring_index,
-                   bool* do_transition) {}
+//вызывается в процессе метода TreeTraversal;
+//подстрока suffix_tree_string_, начинающаяся с индекса begin_substring_index(включительно) 
+//и заканчивающаяся индексом end_substring_index "лежит" на ребре из vertex в incidence_vertex
+//(является переходом из vertex в incidence_vertex);
+//также принимает bool* do_transition, если TreeTraversal должен перейти по ребру(ссылке, переходу),
+//то в методе ProcessLink do_transtition должен стать равным true, иначе false.(обязательно)
+void ProcessLink(int vertex, int incidence_vertex,
+                 int begin_substring_index, int end_substring_index,
+                 bool* do_transition) {}
   
-  //вызывается после обработки всех рёбер(ссылок, переходов) из vertex;
-  //смысл do_transition аналогичен;
-  //по сути у Вас спрашивается, нужно ли пройти по суфф. ссылке
-  void ProcessSuffixLink(int vertex, int incidence_vertex,
+//вызывается после обработки всех рёбер(ссылок, переходов) из vertex;
+//смысл do_transition аналогичен;
+//по сути у Вас спрашивается, нужно ли пройти по суфф. ссылке
+void ProcessSuffixLink(int vertex, int incidence_vertex,
                          bool* do_transition) {}
 
-  //вызывается после обработки вершины vertex
-  void AfterVertexProcessing(int vertex) {}
+//вызывается после обработки вершины vertex
+void AfterVertexProcessing(int vertex) {}
 </code> 
 
 <h5>Важные замечания</h5>
