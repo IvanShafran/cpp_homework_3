@@ -7,7 +7,7 @@
 <h2>Что реализовано?</h2>
 
 <p>В заголовочном файле <code>suffix_tree.h</code> реализован класс <code>SuffixTree</code>
-c публичным конструктором <code>SuffixTree(const std::string& string, char last_symbol='$')</code> и публичным методом <code>void TreeTraversal(T* visitor) const</code>.
+c публичным конструктором <code>SuffixTree(const std::string& string, std::string last_symbol='$')</code> и публичным методом <code>void TreeTraversal(T* visitor) const</code>.
 
 <h3>Суффиксное дерево</h3>
 
