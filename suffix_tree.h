@@ -14,7 +14,6 @@ class SuffixTreeVisitor {
  public:
   const std::string* suffix_tree_string_;
    
-  //calls before vertices proccessing once time
   void set_suffix_tree_string(const std::string* suffix_tree_string) {
     this->suffix_tree_string_ = suffix_tree_string;
   }
@@ -23,17 +22,21 @@ class SuffixTreeVisitor {
 
   void ProcessLink(int vertex, int incidence_vertex,
                    int begin_substring_index, int end_substring_index,
-                   bool* do_transition) {}
+                   bool* do_transition) {
+    *do_transition = true;
+  }
 
   void ProcessSuffixLink(int vertex, int incidence_vertex,
-                         bool* do_transition) {}
+    bool* do_transition) {
+    *do_transition = false;
+  }
 
   void AfterVertexProcessing(int vertex) {}
 };
 
 class SuffixTree {
 public:
-  SuffixTree(const std::string& string, char last_symbol='$') {
+  SuffixTree(const std::string& string, std::string last_symbol="$") {
     string_ = string;
     string_ += last_symbol;
 
@@ -49,48 +52,71 @@ public:
     visitor->set_suffix_tree_string(&(this->get_string()));
 
     size_t number_of_vertices = this->tree_.size();
+    int new_layer_index = 0;
+    std::stack<int> layer_stack;
+    std::vector<int> layer_vertex;
     enum colors { WHITE, GREY, BLACK };
-    std::vector<colors> color(number_of_vertices, WHITE);
+    std::vector<colors> layer_color;
     std::vector<std::vector<int> > link_lists(number_of_vertices);
-    std::vector<int> next_link(number_of_vertices);
-    std::stack<size_t> vertex_stack;
+    std::vector<int> layer_next_link;
 
-    vertex_stack.push(this->root_);
-    while (!vertex_stack.empty()) {
-      size_t vertex = vertex_stack.top();
+    layer_stack.push(new_layer_index);
+    layer_vertex.push_back(this->root_);
+    layer_color.push_back(colors::WHITE);
+    layer_next_link.push_back(0);
+    ++new_layer_index;
 
-      if (color[vertex] == WHITE) {
+    while (!layer_stack.empty()) {
+      int layer = layer_stack.top();
+      int vertex = layer_vertex[layer];
+
+      if (layer_color[layer] == WHITE) {
         visitor->BeforeVertexProcessing(vertex);
 
-        link_lists[vertex] = GetIncidenceList(vertex);
-        next_link[vertex] = 0;
-        color[vertex] = GREY;
+        if (link_lists[vertex].empty()) {
+          link_lists[vertex] = GetIncidenceList(vertex);
+        }
+
+        layer_color[layer] = GREY;
       }
 
-      if (next_link[vertex] == link_lists[vertex].size()) {
-        vertex_stack.pop();
-        link_lists[vertex].resize(0);
-        color[vertex] = BLACK;
+      if (layer_next_link[layer] == link_lists[vertex].size()) {
+        layer_stack.pop();
+        layer_color[layer] = BLACK;
 
         visitor->AfterVertexProcessing(vertex);
       }
       else {
-        Link link = tree_[vertex].links[link_lists[vertex][next_link[vertex]]];
-
         bool do_transition;
+        int incidence_vertex;
 
-        visitor->ProcessLink(vertex,
-                             link.incidence_vertex,
-                             link.begin_substring, 
-                             std::min<int>(link.end_substring, 
-                                           this->string_.size()),
-                             &do_transition);
+        if ((layer_next_link[layer] + 1) == link_lists[vertex].size()) {
+          //last edge is suffix link
+          incidence_vertex = link_lists[vertex][layer_next_link[layer]];
+          visitor->ProcessSuffixLink(vertex, incidence_vertex, &do_transition);
+        }
+        else
+        {
+          Link link = tree_[vertex].links[link_lists[vertex][layer_next_link[layer]]];
+          incidence_vertex = link.incidence_vertex;
 
-        if (color[link.incidence_vertex] == WHITE && do_transition) {
-          vertex_stack.push(link.incidence_vertex);
+          visitor->ProcessLink(vertex,
+            link.incidence_vertex,
+            link.begin_substring,
+            std::min<int>(link.end_substring,
+            this->string_.size()),
+            &do_transition);
         }
 
-        ++next_link[vertex];
+        if (do_transition) {
+          layer_stack.push(new_layer_index);
+          layer_vertex.push_back(incidence_vertex);
+          layer_color.push_back(colors::WHITE);
+          layer_next_link.push_back(0);
+          ++new_layer_index;
+        }
+
+        ++layer_next_link[layer];
       }
     }
   }
@@ -100,7 +126,6 @@ public:
 #else
  private:
 #endif
-
   struct Link {
     int begin_substring, end_substring, incidence_vertex;
 
@@ -128,6 +153,7 @@ public:
   std::vector<Vertex> tree_;
   std::string string_;
   int root_, dummy_;
+  int next_new_vertex_;
   Point active_point_;
   std::string alphabet_;
   std::map<int, int> map_of_alphabet_index_;
@@ -164,12 +190,16 @@ public:
   }
 
   int NewVertex() {
-    int index = tree_.size();
-    tree_.push_back(Vertex(this->GetSizeOfAlhpabet()));
+    int index = this->next_new_vertex_;
+    this->next_new_vertex_++;
     return index;
   }
 
   void InitTree() {
+    int max_vertex_number = 2 * this->string_.size() + 2;
+    this->tree_.resize(max_vertex_number, Vertex(this->GetSizeOfAlhpabet()));
+    this->next_new_vertex_ = 0;
+
     dummy_ = NewVertex();
     root_ = NewVertex();
     active_point_ = Point(root_, 0);
@@ -269,6 +299,8 @@ public:
         incidence_list.push_back(index);
       }
     }
+
+    incidence_list.push_back(tree_[vertex].suffix);
 
     return incidence_list;
   }

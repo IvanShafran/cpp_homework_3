@@ -30,8 +30,8 @@ void TestSuffixTreeGetString() {
       string += c;
     }
 
-    SuffixTree tree(string);
-    CheckEq<std::string>(tree.get_string(), string + "$", 
+    SuffixTree tree(string, "");
+    CheckEq<std::string>(tree.get_string(), string, 
       "TestSuffixTreeGetString: wrong result #2");
   }
 }
@@ -109,7 +109,7 @@ void TestSuffixTreeSplit() {
     tree.tree_;
 
     int next_bracnhing_vertex;
-    int vertex = tree.tree_.size();
+    int vertex = 4;
     CheckEq(tree.Split(1, 1, 2, 1, &next_bracnhing_vertex), true,
       "TestSuffixTreeSplit: wrong returned bool value");
 
@@ -120,12 +120,9 @@ void TestSuffixTreeSplit() {
 }
 
 void TestSuffixTreeNewVertex() {
-  SuffixTree tree("");
-  int number_of_vertex = tree.tree_.size();
+  SuffixTree tree("ab", "");
   
-  CheckEq(tree.NewVertex(), number_of_vertex, "TestSuffixTreeNewVertex: wrong returned value");
-
-  CheckEq<int>(tree.tree_.size(), number_of_vertex + 1, "TestSuffixTreeNewVertex: vertex didn't create");
+  CheckEq(tree.NewVertex(), 4, "TestSuffixTreeNewVertex: wrong returned value");
 }
 
 void TestSuffixTreeBuildAlphabet() {
