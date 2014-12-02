@@ -74,8 +74,9 @@ void BeforeVertexProcessing(int vertex) {}
 //подстрока suffix_tree_string_, начинающа€с€ с индекса begin_substring_index(включительно) 
 //и заканчивающа€с€ индексом end_substring_index "лежит" на ребре из vertex в incidence_vertex
 //(€вл€етс€ переходом из vertex в incidence_vertex);
-//также принимает bool* do_transition, если TreeTraversal должен перейти по ребру(ссылке, переходу),
-//то в методе ProcessLink do_transtition должен стать равным true, иначе false.(об€зательно)
+//также принимает bool* do_transition, если TreeTraversal должен перейти по ребру(ссылке,
+// переходу), то в методе ProcessLink do_transtition
+// должен стать равным true, иначе false.(об€зательно)
 void ProcessLink(int vertex, int incidence_vertex,
                  int begin_substring_index, int end_substring_index,
                  bool* do_transition) {}
@@ -101,8 +102,8 @@ void AfterVertexProcessing(int vertex) {}
 
 <h3>ѕример использовани€</h3>
 
-<p>¬ качестве примера использовани€ библиотеки реализован поиск всех вхождений некоторой строки pattern
-в исходную строку string за O(|pattern|). —мотреть в файле <code>find_all_occurrences.h</code></p>
+<p>¬ качестве примера использовани€ библиотеки реализован поиск всех вхождений некоторой строки <code>pattern</code>
+в исходную строку <code>string</code> за <code>O(|pattern|)</code>. —мотреть в файле <code>find_all_occurrences.h</code></p>
 
 <h2>“есты</h2>
 
@@ -113,4 +114,5 @@ void AfterVertexProcessing(int vertex) {}
 <code>test_suffix_tree.h</code> и <code>test_find_all_occurences.h</code>
 и вызвать функции <code>void TestSuffixTreeUnitTests(std::ostream& out)</code>, 
 <code>void TestFindAllOccurences(std::ostream& out)</code>. 
-<code>std::ostream& out</code> - поток вывода сообщений о тестированиее</p>
+<code>std::ostream& out</code> - поток вывода сообщений о результатах
+тестировании€</p>
