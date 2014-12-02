@@ -94,6 +94,7 @@ void AfterVertexProcessing(int vertex) {}
 <h5>Важные замечания</h5>
 
 <ol class="task-list">
+<li>Первая посещенная вершина является корнем</li>
 <li>Если вершина посещается повторно, то все ребра(ссылки, переходы) просматривася ещё раз.</li>
 <li>Если переменная <code>do_transition</code> помечена как true, то обход сразу переходит в <code>incidence_vertex</code>. При этом
 <coe>vertex</code> остается в стеке обхода.</li>
