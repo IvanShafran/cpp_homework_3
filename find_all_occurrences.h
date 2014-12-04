@@ -1,9 +1,13 @@
+#pragma once
+
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <algorithm>
 
 #include "suffix_tree.h"
+
+namespace {
 
 class FindAllOccurencesVisitor : public SuffixTreeVisitor {
  public:
@@ -53,7 +57,7 @@ class FindAllOccurencesVisitor : public SuffixTreeVisitor {
  private:
   std::vector<int> occurences_;
   const std::string* pattern_;
-  std::unordered_map<int, int> distance_from_root;
+  std::unordered_map<int, size_t> distance_from_root;
   bool init_root;
 
   bool IsThereTransition(int vertex, int begin_substring_index,
@@ -81,4 +85,6 @@ std::vector<int> FindAllOccurrences(const SuffixTree& tree, std::string pattern)
   tree.TreeTraversal(&visitor);
 
   return visitor.GetOccurences();
+}
+
 }

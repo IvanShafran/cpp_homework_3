@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 #include <algorithm>
 #include <vector>
@@ -5,6 +7,8 @@
 #include <stack>
 #include <map>
 
+
+namespace {
 
 const int NULL_VERTEX = -1;
 const int INF = std::numeric_limits<int>::max();
@@ -163,7 +167,7 @@ public:
   }
 
   void BuildAlphabet(const std::string& string) {
-    for (int i = 0; i < string.size(); ++i) {
+    for (size_t i = 0; i < string.size(); ++i) {
       if (std::find(alphabet_.begin(), alphabet_.end(), string[i]) ==
           alphabet_.end()) {
         map_of_alphabet_index_[string[i]] = alphabet_.size();
@@ -306,3 +310,5 @@ public:
   }
 
 };
+
+}
