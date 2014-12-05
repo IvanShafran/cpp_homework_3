@@ -38,7 +38,7 @@ void TestSuffixTreeGetString() {
 }
 
 void TestSuffixTreeInitTree() {
-  SuffixTree tree("");
+  SuffixTree tree("abc");
 
   CheckEq(tree.tree_[tree.root_].suffix, tree.dummy_,
     "TestSuffixTreeInitTree: wrong suffix link from root");
@@ -49,6 +49,10 @@ void TestSuffixTreeInitTree() {
 
   for (size_t i = 0; i < tree.tree_[tree.dummy_].links.size(); ++i) {
     CheckEq(tree.tree_[tree.dummy_].links[i].incidence_vertex, tree.root_, 
+      "TestSuffixTreeInitTree: wrong links from dummy");
+
+    CheckEq(tree.string_[tree.tree_[tree.dummy_].links[i].begin_substring], 
+      tree.alphabet_[i], 
       "TestSuffixTreeInitTree: wrong links from dummy");
   }
 }

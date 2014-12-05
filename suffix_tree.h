@@ -35,7 +35,7 @@ class SuffixTreeVisitor {
   }
 
   void ProcessSuffixLink(int vertex, int incidence_vertex,
-    bool* do_transition) {
+                         bool* do_transition) {
     *do_transition = false;
   }
 
@@ -198,9 +198,8 @@ public:
     return map_of_alphabet_index_[string_[symbol_index]];
   }
 
-  void LinkVertex(int from, int first_symbol,
-    int begin_substring, int end_substring, int to) {
-    tree_[from].links[first_symbol] = Link(begin_substring, end_substring, to);
+  void LinkVertex(int from, int begin_substring, int end_substring, int to) {
+    tree_[from].links[get_edge_index(begin_substring)] = Link(begin_substring, end_substring, to);
     distance_from_root_[to] = distance_from_root_[from] + 
                               (end_substring - begin_substring);
   }
@@ -223,7 +222,8 @@ public:
 
     suffix_link(root_) = dummy_;
     for (int i = 0; i < GetSizeOfAlhpabet(); ++i) {
-      LinkVertex(dummy_, i, i, i + 1, root_);
+      int edge_begin = string_.find(alphabet_[i]);
+      LinkVertex(dummy_, edge_begin, edge_begin + 1, root_);
     }
 
     distance_from_root_[root_] = 0;
@@ -260,11 +260,9 @@ public:
       }
 
       int middle = NewVertex();
-      LinkVertex(vertex, get_edge_index(link.begin_substring),
-        link.begin_substring,
+      LinkVertex(vertex, link.begin_substring,
         link.begin_substring + end - begin, middle);
-      LinkVertex(middle, get_edge_index(link.begin_substring + end - begin),
-        link.begin_substring + end - begin,
+      LinkVertex(middle, link.begin_substring + end - begin,
         link.end_substring, link.incidence_vertex);
 
       *next_branching_vertex = middle;
@@ -277,8 +275,7 @@ public:
     int previous_branching_vertex = root_;
 
     while (Split(vertex, begin, end, get_edge_index(end), &next_branching_vertex)) {
-      LinkVertex(next_branching_vertex, get_edge_index(end),
-        end, string_.size(), NewVertex());
+      LinkVertex(next_branching_vertex, end, string_.size(), NewVertex());
 
       if (previous_branching_vertex != root_) {
         suffix_link(previous_branching_vertex) = next_branching_vertex;

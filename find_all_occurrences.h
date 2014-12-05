@@ -30,13 +30,8 @@ class FindAllOccurencesVisitor : public SuffixTreeVisitor {
       }
     }
     else {
-      if (IsThereTransition(vertex, begin_substring_index,
-                                    end_substring_index)) {
-        *do_transition = true;
-      }
-      else {
-        *do_transition = false;
-      }
+      *do_transition = IsThereTransition(vertex, begin_substring_index,
+        end_substring_index);
     }
   }
 
