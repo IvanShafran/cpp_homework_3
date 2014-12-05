@@ -11,15 +11,19 @@
 namespace {
 
 const int NULL_VERTEX = -1;
-const int INF = std::numeric_limits<int>::max();
 
 
 class SuffixTreeVisitor {
  public:
   const std::string* suffix_tree_string_;
+  const std::vector<int>* distance_from_root_;
    
   void set_suffix_tree_string(const std::string* suffix_tree_string) {
     this->suffix_tree_string_ = suffix_tree_string;
+  }
+
+  void set_distance_from_root(const std::vector<int>* distance) {
+    this->distance_from_root_ = distance;
   }
 
   void BeforeVertexProcessing(int vertex) {}
@@ -54,6 +58,7 @@ public:
   template <class TreeTraversalVisitor>
   void TreeTraversal(TreeTraversalVisitor* visitor) const {
     visitor->set_suffix_tree_string(&(this->get_string()));
+    visitor->set_distance_from_root(&(this->distance_from_root_));
 
     size_t number_of_vertices = this->tree_.size();
     int new_layer_index = 0;
@@ -107,8 +112,7 @@ public:
           visitor->ProcessLink(vertex,
             link.incidence_vertex,
             link.begin_substring,
-            std::min<int>(link.end_substring,
-            this->string_.size()),
+            link.end_substring,
             &do_transition);
         }
 
@@ -161,6 +165,7 @@ public:
   Point active_point_;
   std::string alphabet_;
   std::map<int, int> map_of_alphabet_index_;
+  std::vector<int> distance_from_root_;
 
   const std::string& get_string() const {
     return string_;
@@ -196,6 +201,8 @@ public:
   void LinkVertex(int from, int first_symbol,
     int begin_substring, int end_substring, int to) {
     tree_[from].links[first_symbol] = Link(begin_substring, end_substring, to);
+    distance_from_root_[to] = distance_from_root_[from] + 
+                              (end_substring - begin_substring);
   }
 
   int NewVertex() {
@@ -207,6 +214,7 @@ public:
   void InitTree() {
     int max_vertex_number = 2 * this->string_.size() + 2;
     this->tree_.resize(max_vertex_number, Vertex(this->GetSizeOfAlhpabet()));
+    this->distance_from_root_.resize(max_vertex_number);
     this->next_new_vertex_ = 0;
 
     dummy_ = NewVertex();
@@ -217,6 +225,9 @@ public:
     for (int i = 0; i < GetSizeOfAlhpabet(); ++i) {
       LinkVertex(dummy_, i, i, i + 1, root_);
     }
+
+    distance_from_root_[root_] = 0;
+    distance_from_root_[dummy_] = -1;
   }
 
   Point Canonicalize(int vertex, int begin, int end) {
@@ -267,7 +278,7 @@ public:
 
     while (Split(vertex, begin, end, get_edge_index(end), &next_branching_vertex)) {
       LinkVertex(next_branching_vertex, get_edge_index(end),
-        end, INF, NewVertex());
+        end, string_.size(), NewVertex());
 
       if (previous_branching_vertex != root_) {
         suffix_link(previous_branching_vertex) = next_branching_vertex;

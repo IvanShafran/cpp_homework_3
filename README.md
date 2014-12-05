@@ -60,8 +60,8 @@ c публичным конструктором <code>SuffixTree(const std::string& string, std::strin
 
 <p>Тип объекта visitor должен быть наследником класса <code>SuffixTreeVisitor</code> (который также релизован в <code>suffix_tree.h</code>).</p>
 
-<p><code>SuffixTreeVisitor</code> содержит поле <code>const std::string* suffix_tree_string_;</code>, которое иницилизируется сразу 
-после запуска метода <code>TreeTraversal</code> с помощью метода класса <code>void set_suffix_tree_string(const std::string* suffix_tree_string)</code>.</p>
+<p><code>SuffixTreeVisitor</code> содержит поле <code>const std::string* suffix_tree_string_;</code>. Также этот класс содержит поле 
+<code>const* std::vector<int> distance_from_root_</code>, с помощью которого можно узнать расстояние от корня до данной вершины.</p>
 
 <p>При необходимости должны переопределяться методы:</p>
 
@@ -94,7 +94,8 @@ void AfterVertexProcessing(int vertex) {}
 <h5>Важные замечания</h5>
 
 <ol class="task-list">
-<li>Первая посещенная вершина является корнем</li>
+<li>Первая посещенная вершина является корнем.</li>
+<li>Расстояние до вершины пустышки от корня равное -1.</li>
 <li>Обход ребёр производится в лексикографическом порядке</li>
 <li>Если вершина посещается повторно, то все ребра(ссылки, переходы) просматривася ещё раз.</li>
 <li>Если переменная <code>do_transition</code> помечена как true, то обход сразу переходит в <code>incidence_vertex</code>. При этом

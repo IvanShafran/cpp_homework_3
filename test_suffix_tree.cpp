@@ -5,6 +5,7 @@
 
 #include <ostream>
 #include <algorithm>
+#include <unordered_map>
 
 
 void TestSuffixTreeOnEmptyString() {
@@ -138,7 +139,7 @@ void TestSuffixTreeGetSizeOfAlphabet() {
 }
 
 void TestTreeTraversalLexicographicalOrder() {
-  SuffixTree tree("cadb");
+  SuffixTree tree("cadbefg");
 
   class Visitor : public SuffixTreeVisitor {
    public:
@@ -166,6 +167,42 @@ void TestTreeTraversalLexicographicalOrder() {
 
   Visitor visitor;
 
+  tree.TreeTraversal(&visitor);
+}
+
+void TestSuffixTreeDistanceFromRoot() {
+  SuffixTree tree("abracadabra");
+
+  class CheckDistanceVisitor : public SuffixTreeVisitor {
+  public:
+    void BeforeVertexProcessing(int vertex) {
+      if (!init_root) {
+        distance_from_root[vertex] = 0;
+        init_root = true;
+      }
+
+      if (distance_from_root[vertex] != (*distance_from_root_)[vertex]) {
+        ThrowException("TestSuffixTreeDistanceFromRoot: wrong distance");
+      }
+    }
+
+    void ProcessLink(int vertex, int incidence_vertex,
+      int begin_substring_index, int end_substring_index,
+      bool* do_transition) {
+      int edge_length = end_substring_index - begin_substring_index;
+
+      distance_from_root[incidence_vertex] = distance_from_root[vertex] + edge_length;
+
+      *do_transition = true;
+    }
+
+  private:
+    std::unordered_map<int, int> distance_from_root;
+    bool init_root;
+  };
+
+  CheckDistanceVisitor visitor;
+  
   tree.TreeTraversal(&visitor);
 }
 
@@ -197,6 +234,9 @@ void TestSuffixTreeUnitTests(std::ostream& out) {
 
     TestTreeTraversalLexicographicalOrder();
     PrintOK("TestTreeTraversalLexicographicalOrder", out);
+
+    TestSuffixTreeDistanceFromRoot();
+    PrintOK("TestSuffixTreeDistanceFromRoot", out);
   }
   catch (std::exception e) {
     out << e.what() << "\n";
