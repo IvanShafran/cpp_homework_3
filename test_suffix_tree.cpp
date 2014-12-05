@@ -128,13 +128,45 @@ void TestSuffixTreeNewVertex() {
 void TestSuffixTreeBuildAlphabet() {
   SuffixTree tree("abcd");
 
-  CheckEq<std::string>(tree.alphabet_, "abcd$", "TestSuffixTreeBuildAlphabet: wrong alphabet");
+  CheckEq<std::string>(tree.alphabet_, "$abcd", "TestSuffixTreeBuildAlphabet: wrong alphabet");
 }
 
 void TestSuffixTreeGetSizeOfAlphabet() {
   SuffixTree tree("abcd");
 
   CheckEq<int>(tree.GetSizeOfAlhpabet(), 5, "TestSuffixTreeGetSizeOfAlphabet: wrong result size of alphabet");
+}
+
+void TestTreeTraversalLexicographicalOrder() {
+  SuffixTree tree("cadb");
+
+  class Visitor : public SuffixTreeVisitor {
+   public:
+    std::map<int, char> previous_edge_symbol;
+
+    void BeforeVertexProcessing(int vertex) {
+      previous_edge_symbol[vertex] = '\0';
+    }
+
+    void ProcessLink(int vertex, int incidence_vertex,
+                     int begin_substring_index, int end_substring_index,
+                     bool* do_transition) {
+      char egde_first_symbol = (*suffix_tree_string_)[begin_substring_index];
+
+      if (egde_first_symbol < previous_edge_symbol[vertex]) {
+        ThrowException("TestTreeTraversalLexicographicalOrder: wrong order");
+      }
+      else {
+        previous_edge_symbol[vertex] = egde_first_symbol;
+      }
+
+      *do_transition = true;
+    }
+  };
+
+  Visitor visitor;
+
+  tree.TreeTraversal(&visitor);
 }
 
 void TestSuffixTreeUnitTests(std::ostream& out) {
@@ -162,6 +194,9 @@ void TestSuffixTreeUnitTests(std::ostream& out) {
 
     TestSuffixTreeOnEmptyString();
     PrintOK("TestSuffixTreeOnEmptyString", out);
+
+    TestTreeTraversalLexicographicalOrder();
+    PrintOK("TestTreeTraversalLexicographicalOrder", out);
   }
   catch (std::exception e) {
     out << e.what() << "\n";

@@ -51,8 +51,8 @@ public:
     BuildTree();
   }
 
-  template <class Visitor>
-  void TreeTraversal(Visitor* visitor) const {
+  template <class TreeTraversalVisitor>
+  void TreeTraversal(TreeTraversalVisitor* visitor) const {
     visitor->set_suffix_tree_string(&(this->get_string()));
 
     size_t number_of_vertices = this->tree_.size();
@@ -170,9 +170,14 @@ public:
     for (size_t i = 0; i < string.size(); ++i) {
       if (std::find(alphabet_.begin(), alphabet_.end(), string[i]) ==
           alphabet_.end()) {
-        map_of_alphabet_index_[string[i]] = alphabet_.size();
         alphabet_ += string[i];
       }
+    }
+
+    std::sort(alphabet_.begin(), alphabet_.end());
+
+    for (size_t i = 0; i < alphabet_.size(); ++i) {
+      map_of_alphabet_index_[alphabet_[i]] = i;
     }
   }
 
