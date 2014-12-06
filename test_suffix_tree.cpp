@@ -78,7 +78,7 @@ void TestSuffixTreeCanonize() {
   {
     int start = 0;
     int end = 3;
-    int vertex = tree.tree_[tree.root_].links[tree.get_edge_index(start)].incidence_vertex;
+    int vertex = tree.tree_[tree.root_].links[tree.GetEdgeIndex(start)].incidence_vertex;
     CheckEq(tree.Canonicalize(tree.root_, start, end), SuffixTree::Point(vertex, 1),
       "TestSuffixTreeCanonize: wrong result #3");
   }
@@ -210,6 +210,42 @@ void TestSuffixTreeDistanceFromRoot() {
   tree.TreeTraversal(&visitor);
 }
 
+void TestSuffixTreeParent() {
+  SuffixTree tree("abracadabra");
+
+  class CheckParentVisitor : public SuffixTreeVisitor {
+  public:
+    void BeforeVertexProcessing(int vertex) {
+      if (!init_parent) {
+        init_parent = true;
+        parent.resize(parent_->size(), NULL_VERTEX);
+        parent[1] = 0;//dummy
+      }
+
+      if (parent[vertex] != (*parent_)[vertex]) {
+        ThrowException("TestSuffixTreeParent: wrong parent");
+      }
+    }
+
+    void ProcessLink(int vertex, int incidence_vertex,
+      int begin_substring_index, int end_substring_index,
+      bool* do_transition) {
+    
+      parent[incidence_vertex] = vertex;
+
+      *do_transition = true;
+    }
+
+  private:
+    std::vector<int> parent;
+    bool init_parent;
+  };
+
+  CheckParentVisitor visitor;
+  
+  tree.TreeTraversal(&visitor);
+}
+
 void TestSuffixTreeUnitTests(std::ostream& out) {
   try {
     TestSuffixTreeGetString();
@@ -241,6 +277,9 @@ void TestSuffixTreeUnitTests(std::ostream& out) {
 
     TestSuffixTreeDistanceFromRoot();
     PrintOK("TestSuffixTreeDistanceFromRoot", out);
+
+    TestSuffixTreeParent();
+    PrintOK("TestSuffixTreeParent", out);
   }
   catch (std::exception e) {
     out << e.what() << "\n";

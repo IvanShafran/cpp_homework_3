@@ -45,7 +45,7 @@ class FindAllOccurencesVisitor : public SuffixTreeVisitor {
 
   bool IsThereTransition(int vertex, int begin_substring_index,
                                      int end_substring_index) {
-    if ((*distance_from_root_)[vertex] >= pattern_->size()) {
+    if (static_cast<size_t>((*distance_from_root_)[vertex]) >= pattern_->size()) {
       return true;
     }
 

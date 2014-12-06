@@ -60,8 +60,12 @@ c публичным конструктором <code>SuffixTree(const std::string& string, std::strin
 
 <p>Тип объекта visitor должен быть наследником класса <code>SuffixTreeVisitor</code> (который также релизован в <code>suffix_tree.h</code>).</p>
 
-<p><code>SuffixTreeVisitor</code> содержит поле <code>const std::string* suffix_tree_string_;</code>. Также этот класс содержит поле 
-<code>const* std::vector<int> distance_from_root_</code>, с помощью которого можно узнать расстояние от корня до данной вершины.</p>
+<p><code>SuffixTreeVisitor</code> содержит поля:</p>
+<ol class="task-list">
+<li><code>const std::string* suffix_tree_string_</code> - указатель на строку, по которой построенно суффиксное дерево.</li>
+<li><code>const std::vector<int>* distance_from_root_</code> - указатель на вектор расстояний от корня до вершин.</li>
+<li><code>const std::vector<int>* parent_</code> - указатель на вектор родителей вершин.</li>
+</ol>
 
 <p>При необходимости должны переопределяться методы:</p>
 
@@ -95,11 +99,13 @@ void AfterVertexProcessing(int vertex) {}
 
 <ol class="task-list">
 <li>Первая посещенная вершина является корнем.</li>
+<li>Метод <code>ProcessSuffixLink</code> в случае, если <code>vertex</code> является листом, возвращет значение NULL_VERTEX
+в качестве <code>incidence_vertex</code>.</li>
 <li>Расстояние до вершины пустышки от корня равное -1.</li>
 <li>Обход ребёр производится в лексикографическом порядке</li>
 <li>Если вершина посещается повторно, то все ребра(ссылки, переходы) просматривася ещё раз.</li>
 <li>Если переменная <code>do_transition</code> помечена как true, то обход сразу переходит в <code>incidence_vertex</code>. При этом
-<coe>vertex</code> остается в стеке обхода.</li>
+<code>vertex</code> остается в стеке обхода.</li>
 <li>Обходом полностью управляет <code>visitor</code>, поэтому он должен следить за остановкой обхода</li>
 </ol>
 

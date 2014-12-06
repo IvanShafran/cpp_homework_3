@@ -17,6 +17,7 @@ class SuffixTreeVisitor {
  public:
   const std::string* suffix_tree_string_;
   const std::vector<int>* distance_from_root_;
+  const std::vector<int>* parent_;
    
   void set_suffix_tree_string(const std::string* suffix_tree_string) {
     this->suffix_tree_string_ = suffix_tree_string;
@@ -24,6 +25,10 @@ class SuffixTreeVisitor {
 
   void set_distance_from_root(const std::vector<int>* distance) {
     this->distance_from_root_ = distance;
+  }
+
+  void set_parent(const std::vector<int>* parent) { 
+    this->parent_ = parent;
   }
 
   void BeforeVertexProcessing(int vertex) {}
@@ -34,8 +39,7 @@ class SuffixTreeVisitor {
     *do_transition = true;
   }
 
-  void ProcessSuffixLink(int vertex, int incidence_vertex,
-                         bool* do_transition) {
+  void ProcessSuffixLink(int vertex, int incidence_vertex, bool* do_transition) {
     *do_transition = false;
   }
 
@@ -59,6 +63,7 @@ public:
   void TreeTraversal(TreeTraversalVisitor* visitor) const {
     visitor->set_suffix_tree_string(&(this->get_string()));
     visitor->set_distance_from_root(&(this->distance_from_root_));
+    visitor->set_parent(&(this->parent_));
 
     size_t number_of_vertices = this->tree_.size();
     int new_layer_index = 0;
@@ -166,6 +171,7 @@ public:
   std::string alphabet_;
   std::map<int, int> map_of_alphabet_index_;
   std::vector<int> distance_from_root_;
+  std::vector<int> parent_;
 
   const std::string& get_string() const {
     return string_;
@@ -173,8 +179,7 @@ public:
 
   void BuildAlphabet(const std::string& string) {
     for (size_t i = 0; i < string.size(); ++i) {
-      if (std::find(alphabet_.begin(), alphabet_.end(), string[i]) ==
-          alphabet_.end()) {
+      if (std::find(alphabet_.begin(), alphabet_.end(), string[i]) == alphabet_.end()) {
         alphabet_ += string[i];
       }
     }
@@ -194,14 +199,14 @@ public:
     return tree_[v].suffix;
   }
 
-  int get_edge_index(int symbol_index) {
+  int GetEdgeIndex(int symbol_index) {
     return map_of_alphabet_index_[string_[symbol_index]];
   }
 
   void LinkVertex(int from, int begin_substring, int end_substring, int to) {
-    tree_[from].links[get_edge_index(begin_substring)] = Link(begin_substring, end_substring, to);
-    distance_from_root_[to] = distance_from_root_[from] + 
-                              (end_substring - begin_substring);
+    tree_[from].links[GetEdgeIndex(begin_substring)] = Link(begin_substring, end_substring, to);
+    distance_from_root_[to] = distance_from_root_[from] + (end_substring - begin_substring);
+    parent_[to] = from;
   }
 
   int NewVertex() {
@@ -214,6 +219,7 @@ public:
     int max_vertex_number = 2 * this->string_.size() + 2;
     this->tree_.resize(max_vertex_number, Vertex(this->GetSizeOfAlhpabet()));
     this->distance_from_root_.resize(max_vertex_number);
+    this->parent_.resize(max_vertex_number, NULL_VERTEX);
     this->next_new_vertex_ = 0;
 
     dummy_ = NewVertex();
@@ -228,6 +234,8 @@ public:
 
     distance_from_root_[root_] = 0;
     distance_from_root_[dummy_] = -1;
+
+    parent_[root_] = dummy_;
   }
 
   Point Canonicalize(int vertex, int begin, int end) {
@@ -235,12 +243,13 @@ public:
       return Point(vertex, begin);
     }
     else {
-      Link link = tree_[vertex].links[get_edge_index(begin)];
+      Link link = tree_[vertex].links[GetEdgeIndex(begin)];
       while (end - begin >= link.end_substring - link.begin_substring) {
         begin += link.end_substring - link.begin_substring;
         vertex = link.incidence_vertex;
-        if (end > begin)
-          link = tree_[vertex].links[get_edge_index(begin)];
+        if (end > begin) {
+          link = tree_[vertex].links[GetEdgeIndex(begin)];
+        }
       }
       return Point(vertex, begin);
     }
@@ -253,17 +262,16 @@ public:
       return tree_[vertex].links[link_index].incidence_vertex == NULL_VERTEX;
     }
     else {
-      Link link = tree_[vertex].links[get_edge_index(begin)];
-      if (link_index == get_edge_index(link.begin_substring + end - begin)) {
+      Link link = tree_[vertex].links[GetEdgeIndex(begin)];
+      if (link_index == GetEdgeIndex(link.begin_substring + end - begin)) {
         *next_branching_vertex = vertex;
         return false;
       }
 
       int middle = NewVertex();
-      LinkVertex(vertex, link.begin_substring,
-        link.begin_substring + end - begin, middle);
-      LinkVertex(middle, link.begin_substring + end - begin,
-        link.end_substring, link.incidence_vertex);
+      LinkVertex(vertex, link.begin_substring, link.begin_substring + end - begin, middle);
+      LinkVertex(middle, link.begin_substring + end - begin, link.end_substring, 
+                 link.incidence_vertex);
 
       *next_branching_vertex = middle;
       return true;
@@ -274,7 +282,7 @@ public:
     int next_branching_vertex;
     int previous_branching_vertex = root_;
 
-    while (Split(vertex, begin, end, get_edge_index(end), &next_branching_vertex)) {
+    while (Split(vertex, begin, end, GetEdgeIndex(end), &next_branching_vertex)) {
       LinkVertex(next_branching_vertex, end, string_.size(), NewVertex());
 
       if (previous_branching_vertex != root_) {
@@ -297,10 +305,8 @@ public:
   void AddSymbol(int index_of_next_symbol) {
     int end = index_of_next_symbol;
 
-    this->active_point_ = CreateNewBranches(active_point_.vertex,
-      active_point_.begin, end);
-    this->active_point_ = Canonicalize(active_point_.vertex,
-      active_point_.begin, end + 1);
+    this->active_point_ = CreateNewBranches(active_point_.vertex, active_point_.begin, end);
+    this->active_point_ = Canonicalize(active_point_.vertex, active_point_.begin, end + 1);
   }
 
   void BuildTree() {
