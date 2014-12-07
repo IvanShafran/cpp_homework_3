@@ -139,11 +139,12 @@ void TestSuffixTreeBuildAlphabet() {
 void TestSuffixTreeGetSizeOfAlphabet() {
   SuffixTree tree("abcd");
 
-  CheckEq<int>(tree.GetSizeOfAlhpabet(), 5, "TestSuffixTreeGetSizeOfAlphabet: wrong result size of alphabet");
+  CheckEq<int>(tree.GetSizeOfAlhpabet(), 5, 
+    "TestSuffixTreeGetSizeOfAlphabet: wrong result size of alphabet");
 }
 
 void TestTreeTraversalLexicographicalOrder() {
-  SuffixTree tree("cadbefg");
+  SuffixTree tree("abracadabra");
 
   class Visitor : public SuffixTreeVisitor {
    public:
@@ -179,12 +180,11 @@ void TestSuffixTreeDistanceFromRoot() {
 
   class CheckDistanceVisitor : public SuffixTreeVisitor {
   public:
-    void BeforeVertexProcessing(int vertex) {
-      if (!init_root) {
-        distance_from_root[vertex] = 0;
-        init_root = true;
-      }
+    void InitVisitor() {
+      distance_from_root[this->root_] = 0;
+    }
 
+    void BeforeVertexProcessing(int vertex) {
       if (distance_from_root[vertex] != (*distance_from_root_)[vertex]) {
         ThrowException("TestSuffixTreeDistanceFromRoot: wrong distance");
       }
@@ -202,7 +202,6 @@ void TestSuffixTreeDistanceFromRoot() {
 
   private:
     std::unordered_map<int, int> distance_from_root;
-    bool init_root;
   };
 
   CheckDistanceVisitor visitor;
@@ -211,17 +210,16 @@ void TestSuffixTreeDistanceFromRoot() {
 }
 
 void TestSuffixTreeParent() {
-  SuffixTree tree("abracadabra");
+  SuffixTree tree("barbcbdbarb");
 
   class CheckParentVisitor : public SuffixTreeVisitor {
   public:
-    void BeforeVertexProcessing(int vertex) {
-      if (!init_parent) {
-        init_parent = true;
-        parent.resize(parent_->size(), NULL_VERTEX);
-        parent[1] = 0;//dummy
-      }
+    void InitVisitor() {
+      parent.resize(this->number_of_vertices_, NULL_VERTEX);
+      parent[this->root_] = this->dummy_;
+    }
 
+    void BeforeVertexProcessing(int vertex) {
       if (parent[vertex] != (*parent_)[vertex]) {
         ThrowException("TestSuffixTreeParent: wrong parent");
       }

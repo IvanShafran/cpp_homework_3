@@ -4,10 +4,12 @@
 
 #include "test_suffix_tree.h"
 #include "test_find_all_occurences.h"
+#include "test_find_max_palindrome.h"
 
 int main() {
-  TestSuffixTreeUnitTests(std::cout);
-  TestFindAllOccurences(std::cout);
+  //TestSuffixTreeUnitTests(std::cout);
+  //TestFindAllOccurences(std::cout);
+  TestFindMaxPalindrome(std::cout);
   system("PAUSE");
 
   return 0;

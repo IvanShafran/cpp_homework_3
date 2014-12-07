@@ -50,15 +50,6 @@ void TestFindAllOccurencesUnit() {
   }
 }
 
-std::string GetRandomString(size_t length, const std::string& symbol_set) {
-  std::string result;
-  for (size_t i = 0; i < length; ++i) {
-    result += symbol_set[rand() % symbol_set.size()];
-  }
-
-  return result;
-}
-
 std::vector<int> FindAllOccurencesByTrivialAlgo(const std::string& text,
   const std::string& pattern) {
   std::vector<int> result;
