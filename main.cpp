@@ -13,7 +13,7 @@ int main() {
   TestFindAllOccurences(std::cout);
   TestFindNumberOfSubstrings(std::cout);
   TestBuildSuffixArray(std::cout);
-  //TestGetLengthOfMaxSubstring(std::cout);
+  TestGetLengthOfMaxSubstring(std::cout);
   system("PAUSE");
 
   return 0;

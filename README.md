@@ -123,12 +123,19 @@ void AfterVertexProcessing(int vertex) {}
 
 <h2>Тесты</h2>
 
-<p>В исходных файлах: <code>test_suffix_tree.cpp</code> и <code>test_find_all_occurences.cpp</code> реализованы тесты 
-к классу <code>SuffixTree</code> и функции <code>FindAllOccurences()</code>.</p>
+<p><code>shafran_test_framework.h</code> - фреймоврк для тестирования</p>
 
-<p>Для отдельного запуска необходимо подключить соответсвующие заголовчные файлы 
-<code>test_suffix_tree.h</code> и <code>test_find_all_occurences.h</code>
-и вызвать функции <code>void TestSuffixTreeUnitTests(std::ostream& out)</code>, 
-<code>void TestFindAllOccurences(std::ostream& out)</code>. 
-<code>std::ostream& out</code> - поток вывода сообщений о результатах
-тестированиия</p>
+<p>В исходных файлах находятся тесты:</p> 
+
+<ol class="task-list">
+<li><code>test_suffix_tree.cpp</code> - тесты к суффиксному дереву</li>
+<li><code>test_find_all_occurences.cpp</code> - тесты к поиску всех вхождений</li>
+<li><code>test_find_number_of_substrings.cpp</code> - тесты к первой задаче из второго задания</li>
+<li><code>test_build_suffix_array.cpp</code> - тесты ко второй задаче из второго задания</li>
+<li><code>test_length_of_max_substring.cpp</code> - тесты к третьей задаче из второго задания</li>
+</ol>
+
+<p>Все тесты сразу можно запустить используя файл main.cpp.</p>
+
+<p>Для отдельного запуска необходимо подключить соответсвующие заголовчные файлы и вызывать функции тестирования(указаны в этих файлах).
+Все функции имеют единственный аргумент - <code>std::ostream& out</code>. <code>out</code> - поток вывода результатов тестирования.</p>
