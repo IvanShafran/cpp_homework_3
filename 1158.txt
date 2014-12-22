@@ -1,0 +1,313 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <map>
+#include <algorithm>
+
+struct AKvertex
+{
+    bool leaf;
+    std::map<unsigned char, int> child;
+    int parent;
+    unsigned char last_edge;
+    int suffix_link;
+    std::map<unsigned char, int> automat_link;
+    int distanceFromRoot;
+    int lengthOfMostLongSuffix;
+
+    AKvertex() : leaf(false), parent(0), suffix_link(-1), distanceFromRoot(0), lengthOfMostLongSuffix(-1)
+    { }
+};
+
+class AKAutomat
+{
+public:
+    bool isKeyExistInMap(int key, const std::map<unsigned char, int>& map)
+    {
+        return map.find(key) != map.end();
+    }
+
+    int size()
+    {
+        return vertices.size();
+    }
+
+    std::vector<AKvertex> vertices;
+
+    AKAutomat() : vertices(1)
+    {}
+
+    void addString(const std::string& string)
+    {
+        int vertex = 0;//root
+        for (size_t index = 0; index < string.size(); ++index)
+        {
+            unsigned char symbol = static_cast<unsigned char>(string[index]);
+
+            if (!isKeyExistInMap(symbol, vertices[vertex].child))
+            {
+                AKvertex newAKVertex;
+                newAKVertex.parent = vertex;
+                newAKVertex.last_edge = symbol;
+                newAKVertex.distanceFromRoot = index + 1;
+                vertices.push_back(newAKVertex);
+                vertices[vertex].child[symbol] = vertices.size() - 1;
+            }
+            vertex = vertices[vertex].child[symbol];
+        }
+        vertices[vertex].leaf = true;
+    }
+
+    int getSuffixLink(int vertex)
+    {
+        if (vertices[vertex].suffix_link == -1)
+        {
+            if (vertex == 0 || vertices[vertex].parent == 0)
+                vertices[vertex].suffix_link = 0;
+            else
+                vertices[vertex].suffix_link = getAutomatLink(getSuffixLink(vertices[vertex].parent),
+                vertices[vertex].last_edge);
+        }
+
+        return vertices[vertex].suffix_link;
+    }
+
+    int getAutomatLink(int vertex, unsigned char symbol)
+    {
+        if (!isKeyExistInMap(symbol, vertices[vertex].automat_link))
+        {
+            if (isKeyExistInMap(symbol, vertices[vertex].child))
+                vertices[vertex].automat_link[symbol] = vertices[vertex].child[symbol];
+            else {
+                if (vertex == 0)
+                    vertices[vertex].automat_link[symbol] = 0;
+                else
+                    vertices[vertex].automat_link[symbol] = getAutomatLink(getSuffixLink(vertex), symbol);
+            }
+        }
+
+        return vertices[vertex].automat_link[symbol];
+    }
+
+    int getLengthOfMostLongSuffixLeaf(int vertex)
+    {
+        if (vertices[vertex].lengthOfMostLongSuffix == -1)
+        {
+            if (vertex == 0)
+                vertices[vertex].lengthOfMostLongSuffix = 0;
+            else
+            {
+                if (vertices[vertex].leaf)
+                {
+                    vertices[vertex].lengthOfMostLongSuffix = vertices[vertex].distanceFromRoot;
+                }
+                else
+                {
+                    vertices[vertex].lengthOfMostLongSuffix = getLengthOfMostLongSuffixLeaf(getSuffixLink(vertex));
+                }
+            }
+        }
+
+        return vertices[vertex].lengthOfMostLongSuffix;
+    }
+};
+
+class LongValue {
+public:
+    std::vector<int> value;
+
+    LongValue() : value(1)
+    {}
+
+    void add(const LongValue& other)
+    {
+        int t = 0;
+        value.resize(std::max(value.size(), other.value.size()));
+        for (int i = 0; i < value.size(); ++i)
+        {
+            if (other.value.size() <= i) {
+                t += value[i];
+            }
+            else {
+                t += other.value[i] + value[i];
+            }
+            value[i] = t % 10;
+            t /= 10;
+        }
+
+        if (t != 0) {
+            value.push_back(t);
+        }
+    }
+
+    void print()
+    {
+        for (int i = 0; i < value.size(); ++i)
+        {
+            std::cout << value[value.size() - i - 1];
+        }
+    }
+
+    std::string getValue()
+    {
+        std::string res = "";
+        for (int i = 0; i < value.size(); ++i)
+        {
+            res += ('0' + value[value.size() - i - 1]);
+        }
+
+        return res;
+    }
+};
+
+std::string getSolution(int n, int m, int p, std::string& alphabet, std::vector<std::string>& badWords)
+{
+    AKAutomat automat;
+
+    std::vector<bool> good(badWords.size(), true);
+    for (int i = 0; i < badWords.size(); ++i)
+    for (int j = 0; j < badWords.size(); ++j)
+    if (i != j && badWords[i].find(badWords[j]) != std::string::npos) {
+        if (badWords[i] != badWords[j] || (good[i] && good[j])) {
+            good[i] = false;
+        }
+    }
+
+    for (size_t index = 0; index < p; ++index)
+    if (good[index])
+    {
+        automat.addString(badWords[index]);
+    }
+
+    std::vector<LongValue> dinArray(automat.size());
+    dinArray[0].value[0] = 1;
+
+    for (size_t i = 0; i < m; ++i) {
+        std::vector<LongValue> nextDinArray(automat.size());
+        {
+            for (size_t k = 0; k < automat.size(); ++k)
+            for (size_t j = 0; j < n; ++j) {
+                unsigned char symbol = static_cast<unsigned char>(alphabet[j]);
+
+                if (!automat.vertices[automat.getAutomatLink(k, symbol)].leaf) {
+                    nextDinArray[automat.getAutomatLink(k, symbol)].add(dinArray[k]);
+                }
+            }
+        }
+        dinArray = nextDinArray;
+    }
+
+    LongValue answer;
+    for (size_t i = 0; i < automat.size(); ++i)
+        answer.add(dinArray[i]);
+
+    return answer.getValue();
+}
+/*
+int randint(int l, int r)
+{
+    return l + (rand() % (r - l + 1));
+}
+
+std::string randString(int k, int n, std::string& symbset)
+{
+    std::string res = "";
+    for (int i = 0; i < k; ++i)
+    {
+        res += symbset[randint(0, n - 1)];
+    }
+    return res;
+}
+
+void rec(int k, std::string word, int n, int m, std::string& alhabet, std::vector<std::string>& badWords, LongValue& answer) {
+    if (k == m) {
+        LongValue one;
+        one.value[0] = 1;
+
+        bool flag = true;
+
+        for (int i = 0; i < badWords.size(); ++i)
+        if (word.find(badWords[i]) != std::string::npos)
+            flag = false;
+
+        if (flag) {
+            answer.add(one);
+        }
+        return;
+    }
+
+    for (int i = 0; i < n; ++i) {
+        rec(k + 1, word + alhabet[i], n, m, alhabet, badWords, answer);
+    }
+}
+
+std::string trueSolution(int n, int m, int p, std::string& alphabet, std::vector<std::string>& badWords)
+{
+    LongValue answer;
+
+    rec(0, "", n, m, alphabet, badWords, answer);
+
+    return answer.getValue();
+}
+
+void _test()
+{
+    int test = 0;
+    while (true) {
+        int n = randint(1, 6);
+        int m = randint(1, 6);
+        int p = randint(0, 10);
+        std::string alphabet = "0123456789";
+        std::vector<std::string> badWords;
+        for (int i = 0; i < p; ++i)
+            badWords.push_back(randString(randint(1, std::min(10, m)), n, alphabet.substr(0, n)));
+
+        if (getSolution(n, m, p, alphabet, badWords) != trueSolution(n, m, p, alphabet, badWords)) {
+            std::cout << "---------------------WA----------------------" << std::endl;
+            std::cout << n << " " << m << " " << p << std::endl;
+            std::cout << alphabet.substr(0, n) << std::endl;
+            for (int i = 0; i < badWords.size(); ++i)
+            {
+                std::cout << badWords[i] << std::endl;
+            }
+
+            std::cout << "false answer - " << getSolution(n, m, p, alphabet, badWords) << std::endl;
+            std::cout << "true answer - " << trueSolution(n, m, p, alphabet, badWords) << std::endl;
+            system("PAUSE");
+        }
+
+        test += 1;
+        std::cout << "OK " << test << std::endl;
+    }
+
+    system("PAUSE");
+}
+*/
+int main()
+{
+    //_test();
+
+    int n, m, p;
+    std::cin >> n >> m >> p;
+
+
+    std::string alphabet;
+    std::getline(std::cin, alphabet);
+    std::getline(std::cin, alphabet);
+
+    if (alphabet.size() < n) {
+        return -1;
+    }
+
+    std::vector<std::string> badWords;
+
+    for (size_t index = 0; index < p; ++index)
+    {
+        std::string string;
+        std::getline(std::cin, string);
+        badWords.push_back(string);
+    }
+
+    std::cout << getSolution(n, m, p, alphabet, badWords) << std::endl;
+    system("PAUSE");
+}
